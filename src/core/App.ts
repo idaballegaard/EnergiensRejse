@@ -66,7 +66,7 @@ export default class App {
     requestAnimationFrame(this.animate)
 
     this.controls.update()
-    this.world.update()
+    this.world.update(this.camera)
     this.renderer.render(this.scene, this.camera)
   }
 }
