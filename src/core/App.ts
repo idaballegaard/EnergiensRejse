@@ -1,10 +1,12 @@
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import World from '../scene/World'
 
 export default class App {
   scene: THREE.Scene
   camera: THREE.PerspectiveCamera
   renderer: THREE.WebGLRenderer
+  controls: OrbitControls
   world: World
 
   constructor() {
@@ -38,6 +40,11 @@ export default class App {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     document.body.appendChild(this.renderer.domElement)
 
+    // Controls
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+    this.controls.enableDamping = true
+    this.controls.dampingFactor = 0.05
+
     // World
     this.world = new World(this.scene)
 
@@ -48,6 +55,7 @@ export default class App {
   animate = () => {
     requestAnimationFrame(this.animate)
 
+    this.controls.update()
     this.world.update()
     this.renderer.render(this.scene, this.camera)
   }
