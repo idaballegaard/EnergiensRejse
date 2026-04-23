@@ -12,7 +12,8 @@ export default class App {
   constructor() {
     // Scene
     this.scene = new THREE.Scene()
-    this.scene.background = new THREE.Color('#dff1ff')
+    this.scene.background = new THREE.Color('#87ceeb')
+    this.scene.fog = new THREE.Fog('#87ceeb', 30, 80)
 
     // Camera
     this.camera = new THREE.PerspectiveCamera(
@@ -23,21 +24,30 @@ export default class App {
     )
     this.camera.position.set(0, 2, 6)
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight('#ffffff', 1.8)
-    this.scene.add(ambientLight)
+    // Lighting — sun
+    const sun = new THREE.DirectionalLight('#fff4e0', 3.0)
+    sun.position.set(15, 20, 10)
+    sun.castShadow = true
+    sun.shadow.mapSize.set(2048, 2048)
+    sun.shadow.camera.near = 0.5
+    sun.shadow.camera.far = 80
+    sun.shadow.camera.left = -30
+    sun.shadow.camera.right = 30
+    sun.shadow.camera.top = 30
+    sun.shadow.camera.bottom = -30
+    sun.shadow.bias = -0.001
+    this.scene.add(sun)
 
-    const directionalLight = new THREE.DirectionalLight('#ffffff', 2.5)
-    directionalLight.position.set(5, 10, 7)
-    this.scene.add(directionalLight)
-
-    const fillLight = new THREE.HemisphereLight('#fff7d6', '#7aa6d9', 1.4)
-    this.scene.add(fillLight)
+    // Lighting — sky light
+    const skyLight = new THREE.HemisphereLight('#87ceeb', '#4a8c3f', 1.2)
+    this.scene.add(skyLight)
 
     // Renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true })
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    this.renderer.shadowMap.enabled = true
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
     document.body.appendChild(this.renderer.domElement)
 
     // Controls
