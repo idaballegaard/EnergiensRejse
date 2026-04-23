@@ -3,9 +3,9 @@ import * as THREE from 'three'
 export default class Landscape {
   static getHeight(x: number, z: number): number {
     return (
-      Math.sin(x * 0.4) * Math.cos(z * 0.3) * 0.9 +
-      Math.sin(x * 0.9 + 1.2) * Math.cos(z * 0.7 + 0.8) * 0.4 +
-      Math.sin(x * 0.2 + 2.5) * Math.cos(z * 0.5 + 1.1) * 0.6
+      Math.sin(x * 0.2) * Math.cos(z * 0.15) * 0.35 +
+      Math.sin(x * 0.45 + 1.2) * Math.cos(z * 0.35 + 0.8) * 0.2 +
+      Math.sin(x * 0.1 + 2.5) * Math.cos(z * 0.25 + 1.1) * 0.25
     )
   }
 
