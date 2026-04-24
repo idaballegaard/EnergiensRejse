@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
-const WIND_TURBINE_SCALE = 13
+const WIND_TURBINE_SCALE = 15
 
 export default class WindTurbine {
   model: THREE.Group | null = null
