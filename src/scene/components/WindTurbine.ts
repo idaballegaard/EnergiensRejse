@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
+const WIND_TURBINE_SCALE = 13
+
 export default class WindTurbine {
   model: THREE.Group | null = null
   private mixer: THREE.AnimationMixer | null = null
@@ -14,8 +16,7 @@ export default class WindTurbine {
     loader.load(modelUrl, (gltf: GLTF) => {
       this.model = gltf.scene
 
-      const scale = 4
-      this.model.scale.setScalar(scale)
+      this.model.scale.setScalar(WIND_TURBINE_SCALE)
 
       const groundY = Landscape.getHeight(0, 0)
       this.model.position.set(0, groundY, 0)
