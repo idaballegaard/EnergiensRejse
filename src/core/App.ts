@@ -71,14 +71,14 @@ export default class App {
     // Scene
     this.scene = new THREE.Scene()
     this.scene.background = new THREE.Color('#87ceeb')
-    this.scene.fog = new THREE.Fog('#87ceeb', 30, 80)
+    this.scene.fog = new THREE.Fog('#87ceeb', 70, 180)
 
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
       0.1,
-      100
+      220
     )
     this.camera.position.set(0, 2, 6)
 

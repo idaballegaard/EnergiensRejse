@@ -7,7 +7,17 @@ type Cloud = {
 
 export default class Sky {
 	private clouds: Cloud[] = []
-	private static readonly CLOUD_X_LIMIT = 140
+	private dome: THREE.Mesh | null = null
+	private static readonly CLOUD_X_LIMIT = 170
+	private static readonly CLOUD_COUNT = 16
+	private static readonly SKY_DOME_RADIUS = 180
+	private static readonly SKY_DOME_Y_OFFSET = 0
+	private static readonly CLOUD_BASE_Y = 34
+	private static readonly CLOUD_Y_VARIATION = 12
+	private static readonly FAR_CLOUD_Z_NEGATIVE_MIN = -140
+	private static readonly FAR_CLOUD_Z_NEGATIVE_MAX = -65
+	private static readonly FAR_CLOUD_Z_POSITIVE_MIN = 60
+	private static readonly FAR_CLOUD_Z_POSITIVE_MAX = 140
 
 	constructor(scene: THREE.Scene) {
 		this.addSkyDome(scene)
@@ -15,6 +25,11 @@ export default class Sky {
 	}
 
 	update(camera: THREE.Camera) {
+		if (this.dome) {
+			this.dome.position.copy(camera.position)
+			this.dome.position.y += Sky.SKY_DOME_Y_OFFSET
+		}
+
 		for (const cloud of this.clouds) {
 			cloud.mesh.position.x += cloud.speed
 			cloud.mesh.lookAt(camera.position)
@@ -26,7 +41,7 @@ export default class Sky {
 	}
 
 	private addSkyDome(scene: THREE.Scene) {
-		const geometry = new THREE.SphereGeometry(300, 48, 24)
+		const geometry = new THREE.SphereGeometry(Sky.SKY_DOME_RADIUS, 48, 24)
 		const material = new THREE.ShaderMaterial({
 			side: THREE.BackSide,
 			depthWrite: false,
@@ -59,35 +74,40 @@ export default class Sky {
 			`,
 		})
 
-		const dome = new THREE.Mesh(geometry, material)
-		scene.add(dome)
+		this.dome = new THREE.Mesh(geometry, material)
+		this.dome.position.y = Sky.SKY_DOME_Y_OFFSET
+		scene.add(this.dome)
 	}
 
 	private addCloudLayer(scene: THREE.Scene) {
 		const texture = this.createCloudTexture()
-		const cloudCount = 7
+		const cloudCount = Sky.CLOUD_COUNT
 
 		for (let index = 0; index < cloudCount; index += 1) {
-			const size = 18 + Math.random() * 10
+			const size = 14 + Math.random() * 9
 			const material = new THREE.MeshBasicMaterial({
 				map: texture,
 				transparent: true,
-				opacity: 0.7,
+				opacity: 0.52,
 				depthWrite: false,
 			})
 			const geometry = new THREE.PlaneGeometry(size * 2.4, size)
 			const mesh = new THREE.Mesh(geometry, material)
+			const useNegativeBand = index % 2 === 0
+			const z = useNegativeBand
+				? Sky.FAR_CLOUD_Z_NEGATIVE_MIN + Math.random() * (Sky.FAR_CLOUD_Z_NEGATIVE_MAX - Sky.FAR_CLOUD_Z_NEGATIVE_MIN)
+				: Sky.FAR_CLOUD_Z_POSITIVE_MIN + Math.random() * (Sky.FAR_CLOUD_Z_POSITIVE_MAX - Sky.FAR_CLOUD_Z_POSITIVE_MIN)
 
 			mesh.position.set(
 				-Sky.CLOUD_X_LIMIT + (index / cloudCount) * (Sky.CLOUD_X_LIMIT * 2),
-				26 + Math.random() * 10,
-				-70 + Math.random() * 140
+				Sky.CLOUD_BASE_Y + Math.random() * Sky.CLOUD_Y_VARIATION,
+				z
 			)
 			mesh.rotation.y = Math.PI
 
 			this.clouds.push({
 				mesh,
-				speed: 0.02 + Math.random() * 0.02,
+				speed: 0.01 + Math.random() * 0.015,
 			})
 
 			scene.add(mesh)
