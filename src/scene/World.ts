@@ -5,6 +5,7 @@ import Sky from './components/Sky'
 import ElectricalTransformer from './components/ElectricalTransformer'
 import PowerLines from './components/PowerLines'
 import TransformerStation from './components/TransformerStation'
+import House1 from './components/House1'
 
 export default class World {
   turbine: WindTurbine
@@ -12,6 +13,7 @@ export default class World {
   transformer: ElectricalTransformer
   powerLines: PowerLines
   transformerStation: TransformerStation
+  house1: House1
 
   constructor(scene: THREE.Scene) {
     new Landscape(scene)
@@ -20,6 +22,7 @@ export default class World {
     this.transformer = new ElectricalTransformer(scene)
     this.powerLines = new PowerLines(scene)
     this.transformerStation = new TransformerStation(scene)
+    this.house1 = new House1(scene)
   }
 
   update(camera: THREE.Camera) {
