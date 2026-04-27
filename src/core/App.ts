@@ -34,7 +34,7 @@ const HOTSPOTS: Hotspot[] = [
     label: 'På en transformerstation bliver spændingen sænket',
     description: 'På transformerstationen bliver spændingen sænket til et niveau, der kan sendes sikkert videre ud i lokalnettet.',
     worldPosition: new THREE.Vector3(10, 4, 25),
-    cameraPosition: new THREE.Vector3(20, 6, 14),
+    cameraPosition: new THREE.Vector3(14, 7, 36),
     cameraLookAt: new THREE.Vector3(10, 1, 25),
   },
   {

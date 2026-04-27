@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
-const POWER_LINES_SCALE = 0.16
+const POWER_LINES_SCALE = 0.19
 const POWER_LINES_COUNT = 3
 const POWER_LINES_START_X = -3
 const POWER_LINES_START_Z = 0
