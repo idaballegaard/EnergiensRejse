@@ -7,6 +7,7 @@ type Cloud = {
 
 export default class Sky {
 	private clouds: Cloud[] = []
+	private static readonly CLOUD_X_LIMIT = 140
 
 	constructor(scene: THREE.Scene) {
 		this.addSkyDome(scene)
@@ -18,14 +19,14 @@ export default class Sky {
 			cloud.mesh.position.x += cloud.speed
 			cloud.mesh.lookAt(camera.position)
 
-			if (cloud.mesh.position.x > 85) {
-				cloud.mesh.position.x = -85
+			if (cloud.mesh.position.x > Sky.CLOUD_X_LIMIT) {
+				cloud.mesh.position.x = -Sky.CLOUD_X_LIMIT
 			}
 		}
 	}
 
 	private addSkyDome(scene: THREE.Scene) {
-		const geometry = new THREE.SphereGeometry(220, 48, 24)
+		const geometry = new THREE.SphereGeometry(300, 48, 24)
 		const material = new THREE.ShaderMaterial({
 			side: THREE.BackSide,
 			depthWrite: false,
@@ -78,9 +79,9 @@ export default class Sky {
 			const mesh = new THREE.Mesh(geometry, material)
 
 			mesh.position.set(
-				-80 + (index / cloudCount) * 160,
+				-Sky.CLOUD_X_LIMIT + (index / cloudCount) * (Sky.CLOUD_X_LIMIT * 2),
 				26 + Math.random() * 10,
-				-40 + Math.random() * 80
+				-70 + Math.random() * 140
 			)
 			mesh.rotation.y = Math.PI
 

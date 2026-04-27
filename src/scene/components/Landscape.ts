@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 
 export default class Landscape {
+  static readonly SIZE = 120
+
   static getHeight(x: number, z: number): number {
     void x
     void z
@@ -8,8 +10,8 @@ export default class Landscape {
   }
 
   constructor(scene: THREE.Scene) {
-    const segments = 80
-    const size = 60
+    const segments = 120
+    const size = Landscape.SIZE
     const textureLoader = new THREE.TextureLoader()
 
     const geometry = new THREE.PlaneGeometry(size, size, segments, segments)
