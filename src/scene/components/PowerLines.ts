@@ -2,7 +2,9 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
-const POWER_LINES_SCALE = 0.3
+const POWER_LINES_SCALE = 0.16
+const POWER_LINES_X = -3
+const POWER_LINES_Z = 0
 
 export default class PowerLines {
 	model: THREE.Group | null = null
@@ -15,10 +17,8 @@ export default class PowerLines {
 			this.model = gltf.scene
 			this.model.scale.setScalar(POWER_LINES_SCALE)
 
-			const x = 9
-			const z = 1
-			const groundY = Landscape.getHeight(x, z)
-			this.model.position.set(x, groundY, z)
+			const groundY = Landscape.getHeight(POWER_LINES_X, POWER_LINES_Z)
+			this.model.position.set(POWER_LINES_X, groundY, POWER_LINES_Z)
 
 			this.model.traverse((child) => {
 				if (child instanceof THREE.Mesh) {

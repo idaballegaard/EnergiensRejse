@@ -2,9 +2,9 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
-const HOUSE_1_SCALE = 1.5
-const HOUSE_1_X = 24
-const HOUSE_1_Z = -3
+const HOUSE_1_SCALE = 1.4
+const HOUSE_1_X = 28
+const HOUSE_1_Z = 0
 
 export default class House1 {
 	model: THREE.Group | null = null

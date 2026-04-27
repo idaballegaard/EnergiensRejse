@@ -2,7 +2,9 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
-const WIND_TURBINE_SCALE = 15
+const WIND_TURBINE_SCALE = 10
+const WIND_TURBINE_X = -24
+const WIND_TURBINE_Z = 0
 
 export default class WindTurbine {
   model: THREE.Group | null = null
@@ -18,8 +20,8 @@ export default class WindTurbine {
 
       this.model.scale.setScalar(WIND_TURBINE_SCALE)
 
-      const groundY = Landscape.getHeight(0, 0)
-      this.model.position.set(0, groundY, 0)
+      const groundY = Landscape.getHeight(WIND_TURBINE_X, WIND_TURBINE_Z)
+      this.model.position.set(WIND_TURBINE_X, groundY, WIND_TURBINE_Z)
 
       this.model.traverse((child) => {
         if (child instanceof THREE.Mesh) {

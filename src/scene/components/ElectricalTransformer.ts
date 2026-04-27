@@ -2,7 +2,9 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
-const ELECTRICAL_TRANSFORMER_SCALE = 0.5
+const ELECTRICAL_TRANSFORMER_SCALE = 0.75
+const ELECTRICAL_TRANSFORMER_X = -14
+const ELECTRICAL_TRANSFORMER_Z = 0
 
 export default class ElectricalTransformer {
 	model: THREE.Group | null = null
@@ -16,10 +18,15 @@ export default class ElectricalTransformer {
 
 			this.model.scale.setScalar(ELECTRICAL_TRANSFORMER_SCALE)
 
-			const x = 5
-			const z = 1
-			const groundY = Landscape.getHeight(x, z)
-			this.model.position.set(x, groundY, z)
+			const groundY = Landscape.getHeight(
+				ELECTRICAL_TRANSFORMER_X,
+				ELECTRICAL_TRANSFORMER_Z
+			)
+			this.model.position.set(
+				ELECTRICAL_TRANSFORMER_X,
+				groundY,
+				ELECTRICAL_TRANSFORMER_Z
+			)
 
 			this.model.traverse((child) => {
 				if (child instanceof THREE.Mesh) {
