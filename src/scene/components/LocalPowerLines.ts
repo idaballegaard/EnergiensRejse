@@ -4,9 +4,10 @@ import Landscape from './Landscape'
 
 const LOCAL_POWERLINE_SCALE = 0.18
 const LOCAL_POWERLINE_COUNT = 4
-const LOCAL_POWERLINE_START_X = 12
-const LOCAL_POWERLINE_START_Z = -9
+const LOCAL_POWERLINE_START_X = 20
+const LOCAL_POWERLINE_START_Z = -10
 const LOCAL_POWERLINE_SPACING_Z = 4.86
+const LOCAL_POWERLINE_GROUP_ROTATION_Y = -Math.PI / 6
 
 export default class LocalPowerLines {
 	group: THREE.Group
@@ -14,6 +15,7 @@ export default class LocalPowerLines {
 	constructor(scene: THREE.Scene) {
 		this.group = new THREE.Group()
 		scene.add(this.group)
+		this.group.rotation.y = LOCAL_POWERLINE_GROUP_ROTATION_Y
 
 		const loader = new GLTFLoader()
 		const modelUrl = `${import.meta.env.BASE_URL}models/local_powerline.glb`

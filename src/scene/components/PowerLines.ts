@@ -3,7 +3,7 @@ import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
 const POWER_LINES_SCALE = 0.16
-const POWER_LINES_COUNT = 2
+const POWER_LINES_COUNT = 3
 const POWER_LINES_START_X = -3
 const POWER_LINES_START_Z = 0
 const POWER_LINES_SECOND_MODEL_X_OFFSET = 0.06
@@ -32,17 +32,18 @@ export default class PowerLines {
 			const reference = gltf.scene.clone(true)
 			reference.scale.setScalar(POWER_LINES_SCALE)
 			const referenceBounds = new THREE.Box3().setFromObject(reference)
-			const spacingZ = (referenceBounds.max.z - referenceBounds.min.z) * 0.457
+			const spacingStepZ = (referenceBounds.max.z - referenceBounds.min.z) * 0.457
+			const spacingStepX = POWER_LINES_SECOND_MODEL_X_OFFSET
 
 			for (let index = 0; index < POWER_LINES_COUNT; index += 1) {
 				const instance = gltf.scene.clone(true)
 				instance.scale.setScalar(POWER_LINES_SCALE)
-				if (index === 1) {
+				if (index >= 1) {
 					instance.rotation.y = Math.PI
 				}
 
-				const x = POWER_LINES_START_X + (index === 1 ? POWER_LINES_SECOND_MODEL_X_OFFSET : 0)
-				const z = POWER_LINES_START_Z + index * spacingZ
+				const x = POWER_LINES_START_X + index * spacingStepX
+				const z = POWER_LINES_START_Z + index * spacingStepZ
 				const groundY = Landscape.getHeight(x, z)
 				instance.position.set(x, groundY, z)
 
