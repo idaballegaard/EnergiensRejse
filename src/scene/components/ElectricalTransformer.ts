@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
-const ELECTRICAL_TRANSFORMER_SCALE = 0.75
+const ELECTRICAL_TRANSFORMER_SCALE = 0.50
 const ELECTRICAL_TRANSFORMER_X = -15
 const ELECTRICAL_TRANSFORMER_Z = -15
 
