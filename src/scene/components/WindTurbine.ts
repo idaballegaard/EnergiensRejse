@@ -3,8 +3,9 @@ import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
 const WIND_TURBINE_SCALE = 10
-const WIND_TURBINE_X = -24
-const WIND_TURBINE_Z = 0
+const WIND_TURBINE_X = -20
+const WIND_TURBINE_Z = -20
+const WIND_TURBINE_Y_ROTATION = Math.PI / 2 + Math.PI
 
 export default class WindTurbine {
   model: THREE.Group | null = null
@@ -22,6 +23,7 @@ export default class WindTurbine {
 
       const groundY = Landscape.getHeight(WIND_TURBINE_X, WIND_TURBINE_Z)
       this.model.position.set(WIND_TURBINE_X, groundY, WIND_TURBINE_Z)
+      this.model.rotation.y = WIND_TURBINE_Y_ROTATION
 
       this.model.traverse((child) => {
         if (child instanceof THREE.Mesh) {
