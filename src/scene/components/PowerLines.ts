@@ -3,34 +3,47 @@ import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
 const POWER_LINES_SCALE = 0.16
-const POWER_LINES_X = -3
-const POWER_LINES_Z = 0
+const POWER_LINES_COUNT = 2
+const POWER_LINES_START_X = -3
+const POWER_LINES_START_Z = 0
 
 export default class PowerLines {
-	model: THREE.Group | null = null
+	group: THREE.Group
 
 	constructor(scene: THREE.Scene) {
+		this.group = new THREE.Group()
+		scene.add(this.group)
+
 		const loader = new GLTFLoader()
 		const modelUrl = `${import.meta.env.BASE_URL}models/power_lines.glb`
 
 		loader.load(modelUrl, (gltf: GLTF) => {
-			this.model = gltf.scene
-			this.model.scale.setScalar(POWER_LINES_SCALE)
+			const reference = gltf.scene.clone(true)
+			reference.scale.setScalar(POWER_LINES_SCALE)
+			const referenceBounds = new THREE.Box3().setFromObject(reference)
+			const spacingZ = (referenceBounds.max.z - referenceBounds.min.z) * 0.5
 
-			const groundY = Landscape.getHeight(POWER_LINES_X, POWER_LINES_Z)
-			this.model.position.set(POWER_LINES_X, groundY, POWER_LINES_Z)
+			for (let index = 0; index < POWER_LINES_COUNT; index += 1) {
+				const instance = gltf.scene.clone(true)
+				instance.scale.setScalar(POWER_LINES_SCALE)
 
-			this.model.traverse((child) => {
-				if (child instanceof THREE.Mesh) {
-					child.castShadow = true
-					child.receiveShadow = true
-				}
-			})
+				const x = POWER_LINES_START_X
+				const z = POWER_LINES_START_Z + index * spacingZ
+				const groundY = Landscape.getHeight(x, z)
+				instance.position.set(x, groundY, z)
 
-			const bounds = new THREE.Box3().setFromObject(this.model)
-			this.model.position.y += groundY - bounds.min.y
+				instance.traverse((child) => {
+					if (child instanceof THREE.Mesh) {
+						child.castShadow = true
+						child.receiveShadow = true
+					}
+				})
 
-			scene.add(this.model)
+				const bounds = new THREE.Box3().setFromObject(instance)
+				instance.position.y += groundY - bounds.min.y
+
+				this.group.add(instance)
+			}
 		})
 	}
 }

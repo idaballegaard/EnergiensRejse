@@ -19,22 +19,14 @@ export default class LocalPowerLines {
 		const modelUrl = `${import.meta.env.BASE_URL}models/local_powerline.glb`
 
 		loader.load(modelUrl, (gltf: GLTF) => {
-			const reference = gltf.scene.clone(true)
-			reference.scale.setScalar(LOCAL_POWERLINE_SCALE)
-			const referenceBounds = new THREE.Box3().setFromObject(reference)
-			const baseYOffset = -referenceBounds.min.y
-			const sharedGroundY = Landscape.getHeight(
-				LOCAL_POWERLINE_START_X,
-				LOCAL_POWERLINE_START_Z
-			)
-
 			for (let index = 0; index < LOCAL_POWERLINE_COUNT; index += 1) {
 				const instance = gltf.scene.clone(true)
 				instance.scale.setScalar(LOCAL_POWERLINE_SCALE)
 
 				const x = LOCAL_POWERLINE_START_X
 				const z = LOCAL_POWERLINE_START_Z + index * LOCAL_POWERLINE_SPACING_Z
-				instance.position.set(x, sharedGroundY + baseYOffset, z)
+				const groundY = Landscape.getHeight(x, z)
+				instance.position.set(x, groundY, z)
 
 				instance.traverse((child) => {
 					if (child instanceof THREE.Mesh) {
@@ -42,6 +34,9 @@ export default class LocalPowerLines {
 						child.receiveShadow = true
 					}
 				})
+
+				const bounds = new THREE.Box3().setFromObject(instance)
+				instance.position.y += groundY - bounds.min.y
 
 				this.group.add(instance)
 			}
