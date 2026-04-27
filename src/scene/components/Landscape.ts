@@ -12,6 +12,7 @@ export default class Landscape {
   constructor(scene: THREE.Scene) {
     const segments = 80
     const size = 60
+    const textureLoader = new THREE.TextureLoader()
 
     const geometry = new THREE.PlaneGeometry(size, size, segments, segments)
     geometry.rotateX(-Math.PI / 2)
@@ -28,8 +29,13 @@ export default class Landscape {
 
     geometry.computeVertexNormals()
 
+    const grassTexture = textureLoader.load(
+      `${import.meta.env.BASE_URL}models/grass.jpg`
+    )
+    grassTexture.colorSpace = THREE.SRGBColorSpace
+
     const material = new THREE.MeshStandardMaterial({
-      color: '#4a8c3f',
+      map: grassTexture,
       roughness: 0.95,
       metalness: 0,
     })

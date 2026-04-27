@@ -2,9 +2,9 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
-const TRANSFORMER_STATION_TARGET_HEIGHT = 8
-const TRANSFORMER_STATION_X = 11
-const TRANSFORMER_STATION_Z = 1
+const TRANSFORMER_STATION_TARGET_HEIGHT = 2
+const TRANSFORMER_STATION_X = 18
+const TRANSFORMER_STATION_Z = -2
 
 export default class TransformerStation {
 	model: THREE.Group | null = null
