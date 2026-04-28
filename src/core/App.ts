@@ -80,7 +80,8 @@ export default class App {
       0.1,
       220
     )
-    this.camera.position.set(0, 2, 6)
+    this.camera.position.copy(OVERVIEW_CAMERA_POSITION)
+    this.camera.lookAt(OVERVIEW_CAMERA_LOOK_AT)
 
     // Lighting — sun
     const sun = new THREE.DirectionalLight('#fff4e0', 3.0)
@@ -113,6 +114,7 @@ export default class App {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.enableDamping = true
     this.controls.dampingFactor = 0.05
+    this.controls.target.copy(OVERVIEW_CAMERA_LOOK_AT)
 
     // Camera controller
     this.cameraController = new CameraController(this.camera, this.controls)
