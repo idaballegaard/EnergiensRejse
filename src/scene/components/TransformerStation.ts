@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
-const TRANSFORMER_STATION_TARGET_HEIGHT = 2.2
+const TRANSFORMER_STATION_TARGET_HEIGHT = 2.6
 const TRANSFORMER_STATION_X = 12
 const TRANSFORMER_STATION_Z = 20
 
