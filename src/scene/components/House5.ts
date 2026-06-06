@@ -3,9 +3,15 @@ import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
 const HOUSE_5_SCALE = 1
-const HOUSE_5_X = 33
-const HOUSE_5_Z = -25
-const HOUSE_5_Y_ROTATION = -Math.PI / 2
+const HOUSE_5_INSTANCES: [number, number, number][] = [
+	// rød tag + terrasse
+	[37.5, -24.5, 0], // done
+	[28, -28, Math.PI / 2], // done
+	[38, -28, Math.PI / 2], // done
+	[44.5, -12, Math.PI], // done
+	[22, -35, -Math.PI / 2], // done
+	[16, -25, 0], // done
+]
 
 export default class House5 {
 	model: THREE.Group | null = null
@@ -15,24 +21,29 @@ export default class House5 {
 		const modelUrl = `${import.meta.env.BASE_URL}models/house_5.glb`
 
 		loader.load(modelUrl, (gltf: GLTF) => {
-			this.model = gltf.scene
-			this.model.scale.setScalar(HOUSE_5_SCALE)
+			for (const [x, z, yRotation] of HOUSE_5_INSTANCES) {
+				const house = gltf.scene.clone(true)
+				house.scale.setScalar(HOUSE_5_SCALE)
 
-			const groundY = Landscape.getHeight(HOUSE_5_X, HOUSE_5_Z)
-			this.model.position.set(HOUSE_5_X, groundY, HOUSE_5_Z)
-			this.model.rotation.y = HOUSE_5_Y_ROTATION
+				const groundY = Landscape.getHeight(x, z)
+				house.position.set(x, groundY, z)
+				house.rotation.y = yRotation
 
-			this.model.traverse((child) => {
-				if (child instanceof THREE.Mesh) {
-					child.castShadow = true
-					child.receiveShadow = true
+				house.traverse((child) => {
+					if (child instanceof THREE.Mesh) {
+						child.castShadow = true
+						child.receiveShadow = true
+					}
+				})
+
+				const bounds = new THREE.Box3().setFromObject(house)
+				house.position.y += groundY - bounds.min.y
+
+				scene.add(house)
+				if (this.model === null) {
+					this.model = house
 				}
-			})
-
-			const bounds = new THREE.Box3().setFromObject(this.model)
-			this.model.position.y += groundY - bounds.min.y
-
-			scene.add(this.model)
+			}
 		})
 	}
 }
