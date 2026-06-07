@@ -16,6 +16,7 @@ import OakTrees from './components/OakTrees'
 import Rocks from './components/Rocks'
 import GroundDetails from './components/GroundDetails'
 import MustangCar from './components/MustangCar'
+import GreenCar from './components/GreenCar'
 
 export default class World {
   turbine: WindTurbine
@@ -34,6 +35,7 @@ export default class World {
   rocks: Rocks
   groundDetails: GroundDetails
   mustangCar: MustangCar
+  greenCar: GreenCar
 
   constructor(scene: THREE.Scene) {
     new Landscape(scene)
@@ -53,11 +55,13 @@ export default class World {
     this.rocks = new Rocks(scene)
     this.groundDetails = new GroundDetails(scene)
     this.mustangCar = new MustangCar(scene)
+    this.greenCar = new GreenCar(scene)
   }
 
   update(camera: THREE.Camera) {
     this.sky.update(camera)
     this.turbine.update()
     this.mustangCar.update()
+    this.greenCar.update()
   }
 }
