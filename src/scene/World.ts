@@ -13,6 +13,8 @@ import House5 from './components/House5'
 import LocalPowerLines from './components/LocalPowerLines'
 import Roads from './components/roads'
 import OakTrees from './components/OakTrees'
+import Rocks from './components/Rocks'
+import GroundDetails from './components/GroundDetails'
 
 export default class World {
   turbine: WindTurbine
@@ -28,6 +30,8 @@ export default class World {
   localPowerLines: LocalPowerLines
   roads: Roads
   oakTrees: OakTrees
+  rocks: Rocks
+  groundDetails: GroundDetails
 
   constructor(scene: THREE.Scene) {
     new Landscape(scene)
@@ -44,6 +48,8 @@ export default class World {
     this.localPowerLines = new LocalPowerLines(scene)
     this.roads = new Roads(scene)
     this.oakTrees = new OakTrees(scene)
+    this.rocks = new Rocks(scene)
+    this.groundDetails = new GroundDetails(scene)
   }
 
   update(camera: THREE.Camera) {

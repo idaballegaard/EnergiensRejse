@@ -17,9 +17,9 @@ const HOTSPOTS: Hotspot[] = [
     id: 2,
     label: 'Strømmen bliver opgraderet i transformeren',
     description: 'En transformer ved møllen øger spændingen, så strømmen kan sendes langt af sted med mindre tab.',
-    worldPosition: new THREE.Vector3(-15, 4, -15),
-    cameraPosition: new THREE.Vector3(-6, 5, -6),
-    cameraLookAt: new THREE.Vector3(-15, 1, -15),
+    worldPosition: new THREE.Vector3(-18, 4, -23),
+    cameraPosition: new THREE.Vector3(-9, 5, -14),
+    cameraLookAt: new THREE.Vector3(-18, 1, -23),
   },
   {
     id: 3,

@@ -21,17 +21,33 @@ const CORE_MIN_SPACING = 1.18
 const EDGE_MIN_SPACING = 5.1
 const TREE_SCALE_MIN = 0.94
 const TREE_SCALE_MAX = 1.08
+const TREE_SIZE_MULTIPLIER = 2
 const SCATTERED_TREE_SPACING = 2.35
 
 const TREE_GROUP_CENTERS: [number, number, number][] = [
-	[-40, -8, 4],
-	[-18, -44, 3],
-	[-6, 12, 4],
-	[6, -8, 3],
+	// Back/right side, more sparse
 	[10, 42, 4],
 	[22, 8, 3],
+	[40, -34, 2],
 	[48, 18, 4],
-	[50, -6, 3],
+	[50, -6, 2],
+	[48, -30, 2],
+	[56, -22, 2],
+	[47.5, 46.5, 4],
+	[54, 53, 3],
+
+	// Lower edge strip: between bottom road and map border
+	[-53, -55, 5],
+	[-46, -52.5, 4],
+	[-38, -55.5, 6],
+	[-30, -52.8, 3],
+	[-21, -55.2, 5],
+	[-12, -53.4, 4],
+	[-2, -55.8, 6],
+	[10, -54.5, 5],
+	[24, -55.6, 4],
+	[36, -54.2, 6],
+	[49, -55.4, 5],
 ]
 
 const TREE_GROUP_OFFSETS: [number, number][] = [
@@ -43,16 +59,69 @@ const TREE_GROUP_OFFSETS: [number, number][] = [
 ]
 
 const SOLO_TREE_POSITIONS: [number, number][] = [
+	// Transition belt and natural side
+	[-54, -12],
+	[-48, -24],
+	[-42, -34],
+	[-30, -10],
+	[-24, -40],
 	[-32, -2],
 	[-8, -26],
+	[-2, -18],
+	[2, -36],
+	[-18, -6],
+	[-10, -14],
+
+	// Front/city end singles
+	[0, -10],
+	[6, -22],
+	[10, -6],
+	[16, -30],
+	[20, -14],
+	[26, -20],
+	[30, -12],
+	[34, -24],
+	[38, -10],
+	[46, -20],
+	[52, -12],
+
+	// Back/right side sparse
 	[-4, 26],
 	[4, 24],
 	[12, -40],
+	[18, -26],
 	[24, 44],
 	[28, 6],
+	[34, -34],
+	[42, -26],
+	[50, -36],
 	[44, 30],
 	[54, -18],
 	[52, 40],
+	[45.5, 50.5],
+	[56, 49],
+	[53, 56],
+
+	// Sparse singles between clusters for a natural look
+	[-51, -49],
+	[-34, -50],
+	[-18, -49],
+	[-6, -50],
+	[14, -49],
+	[27, -50],
+	[44, -49],
+]
+
+// [x, z, radius] around rock instances.
+const ROCK_KEEP_OUT_POINTS: KeepOutPoint[] = [
+	[50, 50, 0.62],
+	[48.6, 49.4, 0.58],
+	[51.5, 49.1, 0.6],
+	[49.2, 51.3, 0.64],
+	[52.1, 51.6, 0.56],
+	[47.8, 50.9, 0.58],
+	[50.8, 52.2, 0.62],
+	[48.9, 48.1, 0.55],
 ]
 
 // [x, z, radius] around static scene objects.
@@ -188,7 +257,7 @@ export default class OakTrees {
 		loader.load(modelUrl, (gltf: GLTF) => {
 			for (const [x, z, yRotation, scale] of instances) {
 				const tree = gltf.scene.clone(true)
-				tree.scale.setScalar(scale)
+				tree.scale.setScalar(scale * TREE_SIZE_MULTIPLIER)
 
 				const groundY = Landscape.getHeight(x, z)
 				tree.position.set(x, groundY, z)
@@ -315,6 +384,12 @@ export default class OakTrees {
 		}
 
 		for (const [ox, oz, radius] of KEEP_OUT_POINTS) {
+			if (distance2D(x, z, ox, oz) < radius) {
+				return false
+			}
+		}
+
+		for (const [ox, oz, radius] of ROCK_KEEP_OUT_POINTS) {
 			if (distance2D(x, z, ox, oz) < radius) {
 				return false
 			}
