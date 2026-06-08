@@ -5,7 +5,7 @@ import Landscape from './Landscape'
 const CAR_TARGET_HEIGHT = 0.6
 const CAR_SPEED = 6.6
 const CAR_HEADING_OFFSET = 0
-const CAR_START_DISTANCE_RATIO = 0.72
+const GREEN_CAR_START_DISTANCE_RATIO = 0.72
 
 const ROAD_LOOP_POINTS: [number, number][] = [
 	[-48.5, -45.7], // done
@@ -98,6 +98,34 @@ function computeVisibleBounds(root: THREE.Object3D): THREE.Box3 | null {
 	return hasAny ? worldBounds : null
 }
 
+function brightenCarMaterials(root: THREE.Object3D) {
+	root.traverse((child) => {
+		if (!(child instanceof THREE.Mesh)) {
+			return
+		}
+
+		const materials = getMaterials(child)
+		for (const material of materials) {
+			if ('color' in material && material.color instanceof THREE.Color) {
+				material.color.multiplyScalar(1.42)
+			}
+
+			if ('emissive' in material && material.emissive instanceof THREE.Color) {
+				material.emissive = new THREE.Color('#2a2a2a')
+				;(material as THREE.Material & { emissiveIntensity?: number }).emissiveIntensity = 0.28
+			}
+
+			if ('metalness' in material && typeof material.metalness === 'number') {
+				material.metalness = Math.min(material.metalness, 0.55)
+			}
+
+			if ('roughness' in material && typeof material.roughness === 'number') {
+				material.roughness = Math.min(material.roughness, 0.75)
+			}
+		}
+	})
+}
+
 export default class GreenCar {
 	model: THREE.Group | null = null
 	private carRoot: THREE.Group | null = null
@@ -108,11 +136,11 @@ export default class GreenCar {
 	private traveledDistance = 0
 	private headingY = 0
 
-	constructor(scene: THREE.Scene) {
+	constructor(scene: THREE.Scene, startDistanceRatio = GREEN_CAR_START_DISTANCE_RATIO) {
 		const loader = new GLTFLoader()
 		const modelUrl = `${import.meta.env.BASE_URL}models/simple_car_low_poly_-_rigged.glb`
 		this.initializeRoadPath()
-		this.traveledDistance = this.routeTotalLength * CAR_START_DISTANCE_RATIO
+		this.traveledDistance = this.routeTotalLength * startDistanceRatio
 
 		loader.load(
 			modelUrl,
@@ -138,6 +166,7 @@ export default class GreenCar {
 				this.model.position.x -= center.x
 				this.model.position.z -= center.z
 				this.model.position.y -= centeredBounds.min.y
+				brightenCarMaterials(this.model)
 
 				this.carRoot = new THREE.Group()
 				this.carRoot.add(this.model)

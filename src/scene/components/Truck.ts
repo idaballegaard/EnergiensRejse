@@ -2,12 +2,11 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
-const MUSTANG_TARGET_HEIGHT = 0.6
-const MUSTANG_SPEED = 6.6
-const MUSTANG_HEADING_OFFSET = 0
-const MUSTANG_START_DISTANCE_RATIO = 0.0
+const TRUCK_TARGET_HEIGHT = 0.6
+const TRUCK_SPEED = 6.6
+const TRUCK_HEADING_OFFSET = 0
+const TRUCK_START_DISTANCE_RATIO = 0.2
 
-// anchor points: one at each end of the road stretches we want the car to follow.
 const ROAD_LOOP_POINTS: [number, number][] = [
 	[-48.5, -45.7], // done
 	[41, -45.7], // done
@@ -40,11 +39,17 @@ function hideLikelyArtifactPlanes(root: THREE.Object3D) {
 			return
 		}
 
-		const size = new THREE.Vector3()
-		geometry.boundingBox.getSize(size)
-		const maxSize = Math.max(size.x, size.y, size.z)
-		const minSize = Math.min(size.x, size.y, size.z)
-		const isVeryFlat = maxSize > 0 && minSize / maxSize < 0.03
+		const localSize = new THREE.Vector3()
+		geometry.boundingBox.getSize(localSize)
+		const localMaxSize = Math.max(localSize.x, localSize.y, localSize.z)
+		const localMinSize = Math.min(localSize.x, localSize.y, localSize.z)
+		const isVeryFlatLocal = localMaxSize > 0 && localMinSize / localMaxSize < 0.03
+
+		const worldBounds = new THREE.Box3().setFromObject(child)
+		const worldSize = new THREE.Vector3()
+		worldBounds.getSize(worldSize)
+		const worldFootprint = worldSize.x * worldSize.z
+		const isLargeFlatWorld = worldFootprint > 2.5 && worldSize.y < 0.2
 
 		const materials = getMaterials(child)
 		const hasAlphaMaterial = materials.some(
@@ -62,8 +67,10 @@ function hideLikelyArtifactPlanes(root: THREE.Object3D) {
 			nameHint.includes('plane') ||
 			nameHint.includes('ground')
 
-		if (isVeryFlat && (hasAlphaMaterial || hasShadowHint)) {
+		if ((isVeryFlatLocal && (hasAlphaMaterial || hasShadowHint)) || isLargeFlatWorld) {
 			child.visible = false
+			child.castShadow = false
+			child.receiveShadow = false
 		}
 	})
 }
@@ -127,7 +134,7 @@ function brightenCarMaterials(root: THREE.Object3D) {
 	})
 }
 
-export default class MustangCar {
+export default class Truck {
 	model: THREE.Group | null = null
 	private carRoot: THREE.Group | null = null
 	private clock = new THREE.Clock()
@@ -137,9 +144,9 @@ export default class MustangCar {
 	private traveledDistance = 0
 	private headingY = 0
 
-	constructor(scene: THREE.Scene, startDistanceRatio = MUSTANG_START_DISTANCE_RATIO) {
+	constructor(scene: THREE.Scene, startDistanceRatio = TRUCK_START_DISTANCE_RATIO) {
 		const loader = new GLTFLoader()
-		const modelUrl = `${import.meta.env.BASE_URL}models/mustang_2020_low_poly_-_rigged.glb`
+		const modelUrl = `${import.meta.env.BASE_URL}models/truck_low_poly_-_rigged.glb`
 		this.initializeRoadPath()
 		this.traveledDistance = this.routeTotalLength * startDistanceRatio
 
@@ -150,7 +157,7 @@ export default class MustangCar {
 
 				const initialBounds = new THREE.Box3().setFromObject(this.model)
 				const initialHeight = Math.max(initialBounds.max.y - initialBounds.min.y, 0.001)
-				const scale = MUSTANG_TARGET_HEIGHT / initialHeight
+				const scale = TRUCK_TARGET_HEIGHT / initialHeight
 				this.model.scale.setScalar(scale)
 				hideLikelyArtifactPlanes(this.model)
 
@@ -161,7 +168,6 @@ export default class MustangCar {
 					}
 				})
 
-				// Center model around visible geometry so hidden artifact planes do not offset pivot.
 				const centeredBounds =
 					computeVisibleBounds(this.model) ?? new THREE.Box3().setFromObject(this.model)
 				const center = centeredBounds.getCenter(new THREE.Vector3())
@@ -179,7 +185,7 @@ export default class MustangCar {
 			},
 			undefined,
 			(error: unknown) => {
-				console.error('Failed to load Mustang model:', error)
+				console.error('Failed to load Truck model:', error)
 			}
 		)
 	}
@@ -190,14 +196,12 @@ export default class MustangCar {
 		}
 
 		const delta = this.clock.getDelta()
-		this.traveledDistance += MUSTANG_SPEED * delta
+		this.traveledDistance += TRUCK_SPEED * delta
 		this.placeCarAtDistance(this.traveledDistance)
 	}
 
 	private initializeRoadPath() {
-		this.routePoints = ROAD_LOOP_POINTS.map(
-			([x, z]) => new THREE.Vector3(x, 0, z)
-		)
+		this.routePoints = ROAD_LOOP_POINTS.map(([x, z]) => new THREE.Vector3(x, 0, z))
 		if (this.routePoints.length < 2) {
 			return
 		}
@@ -251,7 +255,7 @@ export default class MustangCar {
 		const groundY = Landscape.getHeight(x, z)
 		this.carRoot.position.set(x, groundY, z)
 
-		const targetHeading = Math.atan2(endPoint.x - startPoint.x, endPoint.z - startPoint.z) + MUSTANG_HEADING_OFFSET
+		const targetHeading = Math.atan2(endPoint.x - startPoint.x, endPoint.z - startPoint.z) + TRUCK_HEADING_OFFSET
 		this.headingY = targetHeading
 		this.carRoot.rotation.y = this.headingY
 	}

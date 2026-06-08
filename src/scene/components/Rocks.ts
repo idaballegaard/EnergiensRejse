@@ -2,10 +2,11 @@ import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Landscape from './Landscape'
 
+const ROCK_SIZE_MULTIPLIER = 1.4
+
 const ROCK_INSTANCES: [number, number, number, number][] = [
 	[50, 50, 0.4, 0.01],
 	[48.6, 49.4, 1.1, 0.009],
-	[51.5, 49.1, -0.7, 0.0105],
 	[49.2, 51.3, 2.0, 0.0115],
 	[52.1, 51.6, -1.8, 0.0088],
 	[47.8, 50.9, 0.2, 0.0097],
@@ -26,7 +27,7 @@ export default class Rocks {
 		loader.load(modelUrl, (gltf: GLTF) => {
 			for (const [x, z, yRotation, scale] of ROCK_INSTANCES) {
 				const rock = gltf.scene.clone(true)
-				rock.scale.setScalar(scale)
+				rock.scale.setScalar(scale * ROCK_SIZE_MULTIPLIER)
 
 				const groundY = Landscape.getHeight(x, z)
 				rock.position.set(x, groundY, z)
