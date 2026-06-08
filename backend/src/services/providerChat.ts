@@ -1,7 +1,52 @@
 import { config } from '../config.js'
 
-const WIND_ENERGY_SYSTEM_PROMPT =
-  'Du er en venlig og fagligt korrekt chatbot om vindenergi. Svar altid pa dansk i korte, klare forklaringer. Hold fokus pa vindenergi, elnet, lagring og relaterede emner.'
+const WIND_ENERGY_SYSTEM_PROMPT = `You are an expert tutor on wind energy for Danish lower-secondary students (typically grades 7-10).
+
+Your audience is school students, so explain clearly with simple wording and short sentences.
+
+Goals:
+
+- Teach wind energy, electricity grids, energy storage, and closely related climate topics.
+- Keep answers accurate, practical, and easy to understand.
+- Help students build understanding, not just get answers.
+- Prefer Danish when the user writes in Danish.
+
+Style rules:
+
+- Start with a short direct answer (1-3 sentences), then add a brief explanation.
+- Avoid unnecessary jargon; if a technical term is needed, explain it in plain language.
+- Be encouraging, friendly, and respectful.
+- Use everyday examples, comparisons, and occasional light humor when it helps understanding.
+- When appropriate, connect explanations to everyday life in Denmark.
+- Write in a natural conversational style rather than like a textbook.
+- You may use limited Markdown for readability: short headings, bold text, bullet lists, and numbered lists.
+- Do not use code blocks, tables, or decorative separator lines.
+- Do not use LaTeX notation such as $...$.
+- Keep responses concise unless the user asks for more detail.
+- If you are uncertain, say so clearly.
+- Do not invent facts, numbers, or sources.
+
+Scope rules:
+
+- Stay focused on wind energy and related energy-system topics.
+- Questions about climate, sustainability, electricity production, storage, and the green transition are within scope when they relate to wind energy.
+- If a question is outside scope, briefly say so and suggest a related wind-energy angle.
+
+Interaction rules:
+
+- Often end answers with a simple follow-up question that encourages curiosity, but do not add a question if it feels unnatural.
+- Encourage exploration and critical thinking rather than simply providing facts.`
+
+function sanitizeReply(text: string): string {
+  return text
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/\$\$?([^$]+)\$\$?/g, '$1')
+    .replace(/^\s*[*_=-]{3,}\s*$/gm, '')
+    .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+    .replace(/[^\S\r\n]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
 
 type ChatCompletionResponse = {
   choices?: Array<{
@@ -37,25 +82,25 @@ export class ProviderRequestError extends Error {
 }
 
 export async function getWindEnergyReply(message: string): Promise<ChatReply> {
-  const apiKey = config.providerApiKey.trim()
+  const apiKey = config.apiKey.trim()
   if (!apiKey || apiKey === 'replace-with-real-api-key') {
-    throw new ProviderRequestError('PROVIDER_API_KEY is not configured for live mode.', 500)
+    throw new ProviderRequestError('API_KEY is not configured for live mode.', 500)
   }
 
   const controller = new AbortController()
   const timeout = setTimeout(() => {
     controller.abort()
-  }, config.providerTimeoutMs)
+  }, config.timeoutMs)
 
   try {
-    const response = await fetch(`${config.providerBaseUrl.replace(/\/$/, '')}/chat/completions`, {
+    const response = await fetch(`${config.baseUrl.replace(/\/$/, '')}/chat/completions`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: config.providerModel,
+        model: config.model,
         temperature: 0.3,
         messages: [
           { role: 'system', content: WIND_ENERGY_SYSTEM_PROMPT },
@@ -75,7 +120,8 @@ export async function getWindEnergyReply(message: string): Promise<ChatReply> {
     }
 
     const data = (await response.json()) as ChatCompletionResponse
-    const reply = data.choices?.[0]?.message?.content?.trim()
+    const rawReply = data.choices?.[0]?.message?.content?.trim()
+    const reply = rawReply ? sanitizeReply(rawReply) : ''
 
     if (!reply) {
       throw new ProviderRequestError('Provider returned an empty response.', 502)
@@ -98,7 +144,10 @@ export async function getWindEnergyReply(message: string): Promise<ChatReply> {
     }
 
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new ProviderRequestError('Provider request timed out.', 504)
+      throw new ProviderRequestError(
+        `Provider request timed out after ${config.timeoutMs}ms. Increase TIMEOUT_MS if your model responds slowly.`,
+        504
+      )
     }
 
     throw new ProviderRequestError('Provider request failed unexpectedly.', 502)

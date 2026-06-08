@@ -10,6 +10,105 @@ type ChatResponse = {
 
 const DEFAULT_CHAT_API_URL = 'http://localhost:8787/api/chat'
 
+function escapeHtml(input: string): string {
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function renderInlineMarkdown(input: string): string {
+  return input
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(.+?)__/g, '<strong>$1</strong>')
+}
+
+function renderMessageMarkdown(input: string): string {
+  const escaped = escapeHtml(input)
+  const lines = escaped.split(/\r?\n/)
+  const htmlParts: string[] = []
+  let paragraphBuffer: string[] = []
+  let inUl = false
+  let inOl = false
+
+  const flushParagraph = () => {
+    if (paragraphBuffer.length === 0) return
+    htmlParts.push(`<p>${renderInlineMarkdown(paragraphBuffer.join(' '))}</p>`)
+    paragraphBuffer = []
+  }
+
+  const closeLists = () => {
+    if (inUl) {
+      htmlParts.push('</ul>')
+      inUl = false
+    }
+    if (inOl) {
+      htmlParts.push('</ol>')
+      inOl = false
+    }
+  }
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim()
+
+    if (!line) {
+      flushParagraph()
+      closeLists()
+      continue
+    }
+
+    const headingMatch = line.match(/^#{1,3}\s+(.+)$/)
+    if (headingMatch) {
+      flushParagraph()
+      closeLists()
+      htmlParts.push(`<h3>${renderInlineMarkdown(headingMatch[1])}</h3>`)
+      continue
+    }
+
+    const ulMatch = line.match(/^[-*]\s+(.+)$/)
+    if (ulMatch) {
+      flushParagraph()
+      if (inOl) {
+        htmlParts.push('</ol>')
+        inOl = false
+      }
+      if (!inUl) {
+        htmlParts.push('<ul>')
+        inUl = true
+      }
+      htmlParts.push(`<li>${renderInlineMarkdown(ulMatch[1])}</li>`)
+      continue
+    }
+
+    const olMatch = line.match(/^\d+\.\s+(.+)$/)
+    if (olMatch) {
+      flushParagraph()
+      if (inUl) {
+        htmlParts.push('</ul>')
+        inUl = false
+      }
+      if (!inOl) {
+        htmlParts.push('<ol>')
+        inOl = true
+      }
+      htmlParts.push(`<li>${renderInlineMarkdown(olMatch[1])}</li>`)
+      continue
+    }
+
+    if (inUl || inOl) {
+      closeLists()
+    }
+    paragraphBuffer.push(line)
+  }
+
+  flushParagraph()
+  closeLists()
+
+  return htmlParts.join('')
+}
+
 export default class ChatPanel {
   private root: HTMLElement
   private messagesEl: HTMLDivElement
@@ -85,7 +184,11 @@ export default class ChatPanel {
   private appendMessage(message: ChatMessage): void {
     const row = document.createElement('div')
     row.className = `chat-message ${message.role}`
-    row.textContent = message.text
+    if (message.role === 'assistant' || message.role === 'system') {
+      row.innerHTML = renderMessageMarkdown(message.text)
+    } else {
+      row.textContent = message.text
+    }
     this.messagesEl.appendChild(row)
     this.messagesEl.scrollTop = this.messagesEl.scrollHeight
   }

@@ -162,6 +162,35 @@ body {
   white-space: pre-wrap;
 }
 
+.chat-message.assistant,
+.chat-message.system {
+  white-space: normal;
+}
+
+.chat-message p {
+  margin: 0 0 8px;
+}
+
+.chat-message p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-message h3 {
+  font-size: 14px;
+  line-height: 1.35;
+  margin: 0 0 8px;
+}
+
+.chat-message ul,
+.chat-message ol {
+  margin: 0 0 8px 18px;
+  padding: 0;
+}
+
+.chat-message li {
+  margin: 0 0 4px;
+}
+
 .chat-message.user {
   align-self: flex-end;
   background: #2e7d32;
