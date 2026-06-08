@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { config } from './config.js'
+import { getWindEnergyReply, ProviderRequestError } from './services/providerChat.js'
 
 type ChatBody = {
   message?: string
@@ -11,12 +12,19 @@ router.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'wind-chat-backend' })
 })
 
-router.post('/api/chat', (req, res) => {
+router.post('/api/chat', async (req, res) => {
   const body = req.body as ChatBody
   const message = body?.message?.trim()
 
   if (!message) {
     res.status(400).json({ error: 'message is required' })
+    return
+  }
+
+  if (message.length > config.maxMessageLength) {
+    res.status(400).json({
+      error: `message is too long (max ${config.maxMessageLength} characters)`,
+    })
     return
   }
 
@@ -29,9 +37,17 @@ router.post('/api/chat', (req, res) => {
     return
   }
 
-  res.status(501).json({
-    error: 'OpenAI provider not wired yet. Set CHAT_USE_MOCK=true until next step is implemented.',
-  })
+  try {
+    const result = await getWindEnergyReply(message)
+    res.json(result)
+  } catch (error: unknown) {
+    if (error instanceof ProviderRequestError) {
+      res.status(error.status).json({ error: error.message, mode: 'live' })
+      return
+    }
+
+    res.status(500).json({ error: 'Unexpected chat error', mode: 'live' })
+  }
 })
 
 export default router

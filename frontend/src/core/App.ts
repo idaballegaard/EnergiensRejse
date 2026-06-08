@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import World from '../scene/World'
 import CameraController from '../interaction/CameraController'
 import InfoOverlay, { type Hotspot } from '../ui/InfoOverlay'
+import ChatPanel from '../ui/ChatPanel'
 
 const HOTSPOTS: Hotspot[] = [
   {
@@ -66,6 +67,7 @@ export default class App {
   world: World
   cameraController: CameraController
   overlay: InfoOverlay
+  chatPanel: ChatPanel
 
   constructor() {
     // Scene
@@ -129,6 +131,9 @@ export default class App {
         this.cameraController.moveTo(OVERVIEW_CAMERA_POSITION, OVERVIEW_CAMERA_LOOK_AT)
       }
     )
+
+    // Chat panel
+    this.chatPanel = new ChatPanel()
 
     // World
     this.world = new World(this.scene)
