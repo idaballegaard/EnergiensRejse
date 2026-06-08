@@ -154,10 +154,10 @@ body {
 }
 
 .chat-message {
-  padding: 9px 10px;
+  padding: 12px 14px;
   border-radius: 10px;
   font-size: 13px;
-  line-height: 1.45;
+  line-height: 1.6;
   max-width: 94%;
   white-space: pre-wrap;
 }
@@ -168,7 +168,7 @@ body {
 }
 
 .chat-message p {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
 }
 
 .chat-message p:last-child {
@@ -176,19 +176,19 @@ body {
 }
 
 .chat-message h3 {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.35;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
 }
 
 .chat-message ul,
 .chat-message ol {
-  margin: 0 0 8px 18px;
+  margin: 0 0 12px 22px;
   padding: 0;
 }
 
 .chat-message li {
-  margin: 0 0 4px;
+  margin: 0 0 8px;
 }
 
 .chat-message.user {
