@@ -25,7 +25,18 @@ router.get('/health', (_req, res) => {
 
 router.post('/api/chat', async (req, res) => {
   const body = req.body as ChatBody
-  const message = body?.message?.trim()
+
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    res.status(400).json({ error: 'request body must be a JSON object' })
+    return
+  }
+
+  if (typeof body.message !== 'string') {
+    res.status(400).json({ error: 'message must be a string' })
+    return
+  }
+
+  const message = body.message.trim()
 
   if (!message) {
     res.status(400).json({ error: 'message is required' })
@@ -39,14 +50,31 @@ router.post('/api/chat', async (req, res) => {
     return
   }
 
-  const rawHistory = Array.isArray(body?.history) ? body.history : []
+  if (body.history != null && !Array.isArray(body.history)) {
+    res.status(400).json({ error: 'history must be an array when provided' })
+    return
+  }
+
+  const rawHistory = Array.isArray(body.history) ? body.history : []
   const history: ChatHistoryMessage[] = []
 
   for (const item of rawHistory.slice(-MAX_HISTORY_MESSAGES)) {
-    if (!item || (item.role !== 'user' && item.role !== 'assistant')) {
-      continue
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      res.status(400).json({ error: 'history items must be objects' })
+      return
     }
-    const content = item.content?.trim()
+
+    if (item.role !== 'user' && item.role !== 'assistant') {
+      res.status(400).json({ error: 'history role must be user or assistant' })
+      return
+    }
+
+    if (typeof item.content !== 'string') {
+      res.status(400).json({ error: 'history content must be a string' })
+      return
+    }
+
+    const content = item.content.trim()
     if (!content) {
       continue
     }
