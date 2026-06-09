@@ -3,12 +3,18 @@ type ChatMessage = {
   text: string
 }
 
+type ChatHistoryMessage = {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 type ChatResponse = {
   reply?: string
   error?: string
 }
 
 const DEFAULT_CHAT_API_URL = 'http://localhost:8787/api/chat'
+const MAX_HISTORY_MESSAGES = 14
 
 function escapeHtml(input: string): string {
   return input
@@ -63,7 +69,8 @@ function renderMessageMarkdown(input: string): string {
     if (headingMatch) {
       flushParagraph()
       closeLists()
-      htmlParts.push(`<h3>${renderInlineMarkdown(headingMatch[1])}</h3>`)
+      const headingText = headingMatch[1] ?? ''
+      htmlParts.push(`<h3>${renderInlineMarkdown(headingText)}</h3>`)
       continue
     }
 
@@ -78,7 +85,8 @@ function renderMessageMarkdown(input: string): string {
         htmlParts.push('<ul>')
         inUl = true
       }
-      htmlParts.push(`<li>${renderInlineMarkdown(ulMatch[1])}</li>`)
+      const bulletText = ulMatch[1] ?? ''
+      htmlParts.push(`<li>${renderInlineMarkdown(bulletText)}</li>`)
       continue
     }
 
@@ -93,7 +101,8 @@ function renderMessageMarkdown(input: string): string {
         htmlParts.push('<ol>')
         inOl = true
       }
-      htmlParts.push(`<li>${renderInlineMarkdown(olMatch[1])}</li>`)
+      const numberedText = olMatch[1] ?? ''
+      htmlParts.push(`<li>${renderInlineMarkdown(numberedText)}</li>`)
       continue
     }
 
@@ -118,6 +127,7 @@ export default class ChatPanel {
   private statusEl: HTMLParagraphElement
   private apiUrl: string
   private isSending = false
+  private conversation: ChatHistoryMessage[] = []
 
   constructor() {
     this.apiUrl =
@@ -175,13 +185,17 @@ export default class ChatPanel {
       }
     })
 
+    const welcomeMessage =
+      'Hej! 👋\nStil mig et spørgsmål om vindenergi. Du kan for eksempel spørge:\n\n* Hvordan virker en vindmølle?\n* Hvor kommer strømmen fra, når det ikke blæser?\n* Hvad er fordelene og ulemperne ved vindenergi?'
+
     this.appendMessage({
       role: 'assistant',
-      text: 'Hej! 👋\nStil mig et spørgsmål om vindenergi. Du kan for eksempel spørge:\n\n* Hvordan virker en vindmølle?\n* Hvor kommer strømmen fra, når det ikke blæser?\n* Hvad er fordelene og ulemperne ved vindenergi?',
+      text: welcomeMessage,
     })
+    this.conversation.push({ role: 'assistant', content: welcomeMessage })
   }
 
-  private appendMessage(message: ChatMessage): void {
+  private appendMessage(message: ChatMessage, alignTop = false): void {
     const row = document.createElement('div')
     row.className = `chat-message ${message.role}`
     if (message.role === 'assistant' || message.role === 'system') {
@@ -190,6 +204,12 @@ export default class ChatPanel {
       row.textContent = message.text
     }
     this.messagesEl.appendChild(row)
+
+    if (alignTop) {
+      this.messagesEl.scrollTop = Math.max(row.offsetTop - 8, 0)
+      return
+    }
+
     this.messagesEl.scrollTop = this.messagesEl.scrollHeight
   }
 
@@ -211,16 +231,18 @@ export default class ChatPanel {
     }
 
     this.appendMessage({ role: 'user', text: message })
+    this.conversation.push({ role: 'user', content: message })
     this.inputEl.value = ''
     this.setSendingState(true)
 
     try {
+      const history = this.conversation.slice(-MAX_HISTORY_MESSAGES)
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, history }),
       })
 
       const data = (await response.json()) as ChatResponse
@@ -231,10 +253,15 @@ export default class ChatPanel {
       }
 
       const reply = (data.reply || '').trim()
-      this.appendMessage({
+      const assistantReply = reply || 'Botten returnerede et tomt svar.'
+      this.appendMessage(
+        {
         role: 'assistant',
-        text: reply || 'Botten returnerede et tomt svar.',
-      })
+        text: assistantReply,
+      },
+        true
+      )
+      this.conversation.push({ role: 'assistant', content: assistantReply })
     } catch (_error: unknown) {
       this.appendMessage({
         role: 'system',

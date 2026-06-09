@@ -4,7 +4,18 @@ import { getWindEnergyReply, ProviderRequestError } from './services/chatService
 
 type ChatBody = {
   message?: string
+  history?: Array<{
+    role?: string
+    content?: string
+  }>
 }
+
+type ChatHistoryMessage = {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+const MAX_HISTORY_MESSAGES = 20
 
 const router = Router()
 
@@ -28,6 +39,23 @@ router.post('/api/chat', async (req, res) => {
     return
   }
 
+  const rawHistory = Array.isArray(body?.history) ? body.history : []
+  const history: ChatHistoryMessage[] = []
+
+  for (const item of rawHistory.slice(-MAX_HISTORY_MESSAGES)) {
+    if (!item || (item.role !== 'user' && item.role !== 'assistant')) {
+      continue
+    }
+    const content = item.content?.trim()
+    if (!content) {
+      continue
+    }
+    if (content.length > config.maxMessageLength) {
+      continue
+    }
+    history.push({ role: item.role, content })
+  }
+
   if (config.chatUseMock) {
     res.json({
       reply:
@@ -38,7 +66,7 @@ router.post('/api/chat', async (req, res) => {
   }
 
   try {
-    const result = await getWindEnergyReply(message)
+    const result = await getWindEnergyReply(message, history)
     res.json(result)
   } catch (error: unknown) {
     if (error instanceof ProviderRequestError) {

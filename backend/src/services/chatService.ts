@@ -25,6 +25,11 @@ export type ChatReply = {
   }
 }
 
+type ChatHistoryMessage = {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 export class ProviderRequestError extends Error {
   status: number
 
@@ -35,7 +40,10 @@ export class ProviderRequestError extends Error {
   }
 }
 
-export async function getWindEnergyReply(message: string): Promise<ChatReply> {
+export async function getWindEnergyReply(
+  message: string,
+  history: ChatHistoryMessage[] = []
+): Promise<ChatReply> {
   const apiKey = config.apiKey.trim()
   if (!apiKey || apiKey === 'replace-with-real-api-key') {
     throw new ProviderRequestError('API_KEY is not configured for live mode.', 500)
@@ -58,6 +66,7 @@ export async function getWindEnergyReply(message: string): Promise<ChatReply> {
         temperature: 0.3,
         messages: [
           { role: 'system', content: WIND_ENERGY_SYSTEM_PROMPT },
+          ...history,
           { role: 'user', content: message },
         ],
       }),
