@@ -2,62 +2,12 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import World from '../scene/World'
 import CameraController from '../interaction/CameraController'
-import InfoOverlay, { type Hotspot } from '../ui/InfoOverlay'
+import InfoOverlay from '../ui/InfoOverlay'
 import ChatPanel from '../ui/ChatPanel'
+import { HOTSPOTS } from '../data/hotspots'
 import { setupLighting } from './setup/setupLighting'
 import { setupRenderer } from './setup/setupRenderer'
 import { setupCameraControls } from './setup/setupCameraControls'
-
-const HOTSPOTS: Hotspot[] = [
-  {
-    id: 1,
-    label: 'Vindmøllen producerer strøm',
-    description: 'Vinden får møllens vinger til at dreje rundt. En generator i møllen omdanner bevægelsen til elektricitet.',
-    worldPosition: new THREE.Vector3(-30, 7, -31),
-    cameraPosition: new THREE.Vector3(-18, 8, -20),
-    cameraLookAt: new THREE.Vector3(-30, 2, -31),
-  },
-  {
-    id: 2,
-    label: 'Strømmen bliver opgraderet i transformeren',
-    description: 'En transformer ved møllen øger spændingen, så strømmen kan sendes langt af sted med mindre tab.',
-    worldPosition: new THREE.Vector3(-18, 4, -23),
-    cameraPosition: new THREE.Vector3(-9, 5, -14),
-    cameraLookAt: new THREE.Vector3(-18, 1, -23),
-  },
-  {
-    id: 3,
-    label: 'Strømmen sendes ud i elnettet via højspænding',
-    description: 'Strømmen sendes ud i højspændingsnettet (typisk 60–400 kV) gennem store elmaster over store afstande.',
-    worldPosition: new THREE.Vector3(-8, 5, 5),
-    cameraPosition: new THREE.Vector3(2, 7, 14),
-    cameraLookAt: new THREE.Vector3(-8, 2, 5),
-  },
-  {
-    id: 4,
-    label: 'På en transformerstation bliver spændingen sænket',
-    description: 'På transformerstationen bliver spændingen sænket til et niveau, der kan sendes sikkert videre ud i lokalnettet.',
-    worldPosition: new THREE.Vector3(10, 4, 25),
-    cameraPosition: new THREE.Vector3(14, 7, 36),
-    cameraLookAt: new THREE.Vector3(10, 1, 25),
-  },
-  {
-    id: 5,
-    label: 'Strømmen sendes videre ud i lokalnettet',
-    description: 'Strømmen sendes gennem mindre kabler og luftledninger ud til byer, landsbyer og boliger.',
-    worldPosition: new THREE.Vector3(15, 5, 10),
-    cameraPosition: new THREE.Vector3(24, 6, 20),
-    cameraLookAt: new THREE.Vector3(15, 1, 10),
-  },
-  {
-    id: 6,
-    label: 'Strømmen kommer ind i dit hus',
-    description: 'Strømmen går ind i din bolig gennem eltavlen. Herfra kan du bruge strømmen til lys, varme, computere og meget andet.',
-    worldPosition: new THREE.Vector3(33, 7, -14),
-    cameraPosition: new THREE.Vector3(22, 6, -4),
-    cameraLookAt: new THREE.Vector3(33, 1, -14),
-  },
-]
 
 const OVERVIEW_CAMERA_POSITION = new THREE.Vector3(25, 24, 54)
 const OVERVIEW_CAMERA_LOOK_AT = new THREE.Vector3(25, 15, 35)
