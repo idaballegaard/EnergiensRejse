@@ -59,8 +59,8 @@ const HOTSPOTS: Hotspot[] = [
   },
 ]
 
-const OVERVIEW_CAMERA_POSITION = new THREE.Vector3(0, 20, 42)
-const OVERVIEW_CAMERA_LOOK_AT = new THREE.Vector3(0, 0, 5)
+const OVERVIEW_CAMERA_POSITION = new THREE.Vector3(25, 24, 54)
+const OVERVIEW_CAMERA_LOOK_AT = new THREE.Vector3(25, 15, 35)
 
 export default class App {
   scene: THREE.Scene
