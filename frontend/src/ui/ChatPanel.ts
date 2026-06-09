@@ -29,6 +29,8 @@ function renderInlineMarkdown(input: string): string {
   return input
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/__(.+?)__/g, '<strong>$1</strong>')
+    .replace(/\*(\S[^*\n]*\S)\*/g, '<em>$1</em>')
+    .replace(/_(\S[^_\n]*\S)_/g, '<em>$1</em>')
 }
 
 function renderMessageMarkdown(input: string): string {
