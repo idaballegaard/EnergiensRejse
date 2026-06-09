@@ -170,6 +170,34 @@ export async function getWindEnergyReply(message: string): Promise<ChatReply> {
       )
     }
 
+    if (error instanceof Error) {
+      const causeCode =
+        typeof (error as Error & { cause?: { code?: string } }).cause?.code === 'string'
+          ? (error as Error & { cause?: { code?: string } }).cause?.code
+          : undefined
+
+      if (causeCode === 'UND_ERR_CONNECT_TIMEOUT') {
+        throw new ProviderRequestError(
+          'Could not connect to provider in time (connect timeout). Check BASE_URL, network access, and whether the provider server is running.',
+          502
+        )
+      }
+
+      if (causeCode === 'ENOTFOUND') {
+        throw new ProviderRequestError(
+          'Provider host could not be resolved (DNS error). Verify BASE_URL host name.',
+          502
+        )
+      }
+
+      if (causeCode === 'ECONNREFUSED') {
+        throw new ProviderRequestError(
+          'Provider connection was refused. Verify BASE_URL port and that the provider service is running.',
+          502
+        )
+      }
+    }
+
     throw new ProviderRequestError('Provider request failed unexpectedly.', 502)
   } finally {
     clearTimeout(timeout)
