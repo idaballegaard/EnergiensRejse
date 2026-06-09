@@ -206,7 +206,8 @@ export default class ChatPanel {
     this.messagesEl.appendChild(row)
 
     if (alignTop) {
-      this.messagesEl.scrollTop = Math.max(row.offsetTop - 8, 0)
+      const rowTopInContainer = row.offsetTop - this.messagesEl.offsetTop
+      this.messagesEl.scrollTop = Math.max(rowTopInContainer - 8, 0)
       return
     }
 
