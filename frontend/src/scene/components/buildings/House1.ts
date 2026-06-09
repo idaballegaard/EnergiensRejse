@@ -1,29 +1,27 @@
 import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import Landscape from './Landscape'
+import Landscape from '../environment/Landscape'
 
-const HOUSE_5_SCALE = 1
-const HOUSE_5_INSTANCES: [number, number, number][] = [
-	// rød tag + terrasse
-	[37.5, -24.5, 0], // done
-	[28, -28, Math.PI / 2], // done
-	[38, -28, Math.PI / 2], // done
-	[44.5, -12, Math.PI], // done
-	[22, -35, -Math.PI / 2], // done
-	[16, -25, 0], // done
+const HOUSE_1_SCALE = 1
+const HOUSE_1_INSTANCES: [number, number, number][] = [
+	[28, -9.5, Math.PI / 2], // done
+	[23.5, -28.5, Math.PI / 2], // done
+	[28, -15.5,-Math.PI / 2], // done
+	[44, -23, Math.PI], // done
+	[23, -17, Math.PI], // done
 ]
 
-export default class House5 {
+export default class House1 {
 	model: THREE.Group | null = null
 
 	constructor(scene: THREE.Scene) {
 		const loader = new GLTFLoader()
-		const modelUrl = `${import.meta.env.BASE_URL}models/house_5.glb`
+		const modelUrl = `${import.meta.env.BASE_URL}models/house_1.glb`
 
 		loader.load(modelUrl, (gltf: GLTF) => {
-			for (const [x, z, yRotation] of HOUSE_5_INSTANCES) {
+			for (const [x, z, yRotation] of HOUSE_1_INSTANCES) {
 				const house = gltf.scene.clone(true)
-				house.scale.setScalar(HOUSE_5_SCALE)
+				house.scale.setScalar(HOUSE_1_SCALE)
 
 				const groundY = Landscape.getHeight(x, z)
 				house.position.set(x, groundY, z)

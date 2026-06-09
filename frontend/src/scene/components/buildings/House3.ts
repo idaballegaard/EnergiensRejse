@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import Landscape from './Landscape'
+import Landscape from '../environment/Landscape'
 
 const HOUSE_3_SCALE = 1
 const HOUSE_3_INSTANCES: [number, number, number][] = [

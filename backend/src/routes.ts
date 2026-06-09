@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { config } from './config.js'
-import { getWindEnergyReply, ProviderRequestError } from './services/providerChat.js'
+import { getWindEnergyReply, ProviderRequestError } from './services/chatService.js'
 
 type ChatBody = {
   message?: string

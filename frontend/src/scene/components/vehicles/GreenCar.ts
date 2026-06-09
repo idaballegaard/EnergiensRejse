@@ -1,13 +1,12 @@
 import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import Landscape from './Landscape'
+import Landscape from '../environment/Landscape'
 
-const MUSTANG_TARGET_HEIGHT = 0.6
-const MUSTANG_SPEED = 6.6
-const MUSTANG_HEADING_OFFSET = 0
-const MUSTANG_START_DISTANCE_RATIO = 0.0
+const CAR_TARGET_HEIGHT = 0.6
+const CAR_SPEED = 6.6
+const CAR_HEADING_OFFSET = 0
+const GREEN_CAR_START_DISTANCE_RATIO = 0.72
 
-// anchor points: one at each end of the road stretches we want the car to follow.
 const ROAD_LOOP_POINTS: [number, number][] = [
 	[-48.5, -45.7], // done
 	[41, -45.7], // done
@@ -127,7 +126,7 @@ function brightenCarMaterials(root: THREE.Object3D) {
 	})
 }
 
-export default class MustangCar {
+export default class GreenCar {
 	model: THREE.Group | null = null
 	private carRoot: THREE.Group | null = null
 	private clock = new THREE.Clock()
@@ -137,9 +136,9 @@ export default class MustangCar {
 	private traveledDistance = 0
 	private headingY = 0
 
-	constructor(scene: THREE.Scene, startDistanceRatio = MUSTANG_START_DISTANCE_RATIO) {
+	constructor(scene: THREE.Scene, startDistanceRatio = GREEN_CAR_START_DISTANCE_RATIO) {
 		const loader = new GLTFLoader()
-		const modelUrl = `${import.meta.env.BASE_URL}models/mustang_2020_low_poly_-_rigged.glb`
+		const modelUrl = `${import.meta.env.BASE_URL}models/simple_car_low_poly_-_rigged.glb`
 		this.initializeRoadPath()
 		this.traveledDistance = this.routeTotalLength * startDistanceRatio
 
@@ -150,7 +149,7 @@ export default class MustangCar {
 
 				const initialBounds = new THREE.Box3().setFromObject(this.model)
 				const initialHeight = Math.max(initialBounds.max.y - initialBounds.min.y, 0.001)
-				const scale = MUSTANG_TARGET_HEIGHT / initialHeight
+				const scale = CAR_TARGET_HEIGHT / initialHeight
 				this.model.scale.setScalar(scale)
 				hideLikelyArtifactPlanes(this.model)
 
@@ -161,7 +160,6 @@ export default class MustangCar {
 					}
 				})
 
-				// Center model around visible geometry so hidden artifact planes do not offset pivot.
 				const centeredBounds =
 					computeVisibleBounds(this.model) ?? new THREE.Box3().setFromObject(this.model)
 				const center = centeredBounds.getCenter(new THREE.Vector3())
@@ -179,7 +177,7 @@ export default class MustangCar {
 			},
 			undefined,
 			(error: unknown) => {
-				console.error('Failed to load Mustang model:', error)
+				console.error('Failed to load GreenCar model:', error)
 			}
 		)
 	}
@@ -190,14 +188,12 @@ export default class MustangCar {
 		}
 
 		const delta = this.clock.getDelta()
-		this.traveledDistance += MUSTANG_SPEED * delta
+		this.traveledDistance += CAR_SPEED * delta
 		this.placeCarAtDistance(this.traveledDistance)
 	}
 
 	private initializeRoadPath() {
-		this.routePoints = ROAD_LOOP_POINTS.map(
-			([x, z]) => new THREE.Vector3(x, 0, z)
-		)
+		this.routePoints = ROAD_LOOP_POINTS.map(([x, z]) => new THREE.Vector3(x, 0, z))
 		if (this.routePoints.length < 2) {
 			return
 		}
@@ -251,7 +247,7 @@ export default class MustangCar {
 		const groundY = Landscape.getHeight(x, z)
 		this.carRoot.position.set(x, groundY, z)
 
-		const targetHeading = Math.atan2(endPoint.x - startPoint.x, endPoint.z - startPoint.z) + MUSTANG_HEADING_OFFSET
+		const targetHeading = Math.atan2(endPoint.x - startPoint.x, endPoint.z - startPoint.z) + CAR_HEADING_OFFSET
 		this.headingY = targetHeading
 		this.carRoot.rotation.y = this.headingY
 	}

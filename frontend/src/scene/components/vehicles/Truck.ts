@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import Landscape from './Landscape'
+import Landscape from '../environment/Landscape'
 
 const TRUCK_TARGET_HEIGHT = 0.6
 const TRUCK_SPEED = 6.6
